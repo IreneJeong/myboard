@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.developia.restful.board.BoardDAO">
+	
+	<select id ="getBoardList" resultType="BoardVO">
+		select b.boa_no, 
+		       b.boa_name, 
+			   u.user_no as "UserVO.user_no", 
+			   u.user_id as "UserVO.user_id", 
+			   u.user_name as "UserVO.user_name"
+		from   t_board b inner join t_user u
+		on     b.user_no=u.user_no
+		where  b.boa_status = 1
+		order  by b.boa_name asc
+	</select>
+	
+	<insert id="insertBoard" parameterType="BoardVO">
+	insert into t_board(boa_no, boa_name, user_no)
+	values(seq_board.nextval, #{boa_name}, #{userVO.user_no})
+	</insert>
+	
+	<insert id="insertArticle" parameterType="ArticleVO">
+	insert into t_article(art_no, art_title, art_content, art_ip, boa_no, user_no)
+   	values(seq_article.nextval, #{art_title}, #{art_content}, #{art_ip}, #{boa_no}, #{userVO.user_no})
+	</insert>
+	
+	<select id ="getBoard" parameterType="int" resultType="BoardVO">
+	select b.boa_no, 
+		   b.boa_name,
+		   u.user_name as "UserVO.user_name", 
+		   u.user_id as "UserVO.user_id"		   
+ 	from t_board b inner join t_user u 
+ 	on 	 b.user_no = u.user_no
+ 	where b.boa_no =#{boa_no}
+	</select>
+
+	<select id ="getList" parameterType="int" resultType="ArticleVO">
+	select t.art_no, 
+		   t.art_title,
+		   u.user_name as "UserVO.user_name", 
+		   u.user_id as "UserVO.user_id",
+		   t.art_regdate,
+		   t.art_readcnt
+ 	from t_article t inner join t_user u 
+ 	on 	 t.user_no = u.user_no
+ 	where t.boa_no =#{boa_no}
+ 	order by t.art_no desc
+	</select>
+	
+	<update id="updateReadcnt" parameterType="long">
+	update t_article set art_readcnt = art_readcnt +1
+	where art_no=#{art_no}
+	</update>
+	
+	<select id="getArticle" parameterType="long" resultType="ArticleVO">
+	select art_no ,art_title, art_content,art_like,art_dislike ,art_regdate,art_readcnt,art_com_cnt,art_ip, boa_no, 
+ 	user_no as "userVO.user_no",
+	user_id as "userVO.user_id", 
+	user_name as "userVO.user_name"
+	from t_article inner join t_user
+	using (user_no)
+	where art_no=#{art_no}
+	</select>
+	
+	<delete id="deleteArticle" parameterType="ArticleVO">
+	delete from t_article
+	where art_no=#{art_no} and user_no=#{userVO.user_no}
+	</delete>
+	
+	<update id="updateArticle" parameterType="ArticleVO">
+	update t_article set art_title =#{art_title}, art_content =#{art_content}
+	where art_no =#{art_no} and user_no= #{userVO.user_no}
+	</update>
+</mapper>
